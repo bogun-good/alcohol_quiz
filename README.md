@@ -26,7 +26,10 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding: 5vh 2vw; /* Reduced side padding */
+            padding-top: 7vh; /* 상단 패딩을 7vh로 늘림 (약 2cm 아래로) */
+            padding-left: 2vw;
+            padding-right: 2vw;
+            padding-bottom: 5vh; /* 기존 하단 패딩 유지 */
             box-sizing: border-box;
             overflow-x: hidden;
         }
@@ -109,37 +112,6 @@
             margin-top: 2vh;
         }
 
-        /* 자동차 스타일 */
-        #car {
-            position: absolute;
-            width: 18vw;
-            max-width: 150px;
-            height: 10vh;
-            max-height: 80px;
-            background: linear-gradient(to right, #3498db, #2980b9);
-            border-radius: 10px;
-            bottom: 8vh;
-            left: 5vw;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
-            transition: left 0.03s linear;
-            white-space: nowrap;
-            padding: 0 1vw;
-            box-sizing: border-box;
-        }
-
-        #car span {
-            font-size: 0.9rem;
-            padding: 0.5vh 1vw;
-            border: 1px solid rgba(255, 255, 255, 0.7);
-            border-radius: 5px;
-            background-color: rgba(0, 0, 0, 0.2);
-        }
-
         /* 점수 표시 스타일 */
         #score {
             position: absolute;
@@ -152,9 +124,6 @@
 
         /* 다음 버튼 스타일 */
         #nextBtn {
-            /* position: fixed; */ /* Removed fixed positioning */
-            /* bottom: 3vh; */ /* Removed bottom positioning */
-            /* right: 3vw; */ /* Removed right positioning */
             padding: 1.5vh 3vw;
             font-size: 1rem;
             background: #27ae60;
@@ -193,10 +162,6 @@
 
         /* 피드백 메시지 스타일 */
         #feedback {
-            /* position: absolute; */ /* Removed absolute positioning */
-            /* bottom: 20vh; */ /* Removed bottom positioning */
-            /* left: 50%; */ /* Removed left positioning */
-            /* transform: translateX(-50%); */ /* Removed transform */
             font-size: 1rem;
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
@@ -274,12 +239,6 @@
             #feedback {
                 font-size: 1.2rem;
             }
-            #car {
-                font-size: 1.2rem;
-            }
-            #car span {
-                font-size: 1rem;
-            }
             #finalResult {
                 font-size: 1.2rem;
                 padding: 4vh 5vw;
@@ -311,14 +270,6 @@
             #feedback {
                 font-size: 1.4rem;
             }
-            #car {
-                width: 12vw;
-                max-width: 100px;
-                font-size: 1.4rem;
-            }
-            #car span {
-                font-size: 1.2rem;
-            }
             #finalResult {
                 font-size: 1.4rem;
                 max-width: 50vw;
@@ -335,10 +286,10 @@
     <div id="score">점수: 0</div>
     <div id="questionBox">문제 로딩 중...</div>
     <div id="optionsContainer">
-        </div>
-    <div id="car"></div>
+        <!-- 보기 옵션 또는 주관식 입력창이 여기에 동적으로 생성됩니다 -->
+    </div>
     <div id="feedback"></div>
-    <button id="nextBtn">다음</button> 
+    <button id="nextBtn">다음</button>
     <div id="finalResult">
         <p>🎉 퀴즈 완료!</p>
         <p>총 객관식 문제: <span id="totalQuestions"></span>개</p>
@@ -447,12 +398,9 @@
     let score = 0;
     let mcCorrectCount = 0;
     let mcIncorrectCount = 0;
-    let carMoveInterval;
-    let isCarMovingRight = true;
     let optionsDisabled = false;
     let userDescriptiveAnswers = [];
 
-    const car = document.getElementById("car");
     const questionBox = document.getElementById("questionBox");
     const optionsContainer = document.getElementById("optionsContainer");
     const scoreDisplay = document.getElementById("score");
@@ -486,8 +434,6 @@
         const qData = questions[currentQuestionIndex];
         questionBox.innerText = qData.q;
         optionsContainer.innerHTML = "";
-        car.innerHTML = "";
-        car.style.backgroundColor = '#3498db';
         feedback.innerText = "";
         feedback.style.color = "";
         nextBtn.style.display = "none";
@@ -503,52 +449,21 @@
                 optionBox.addEventListener("click", () => checkAnswer(optionBox, choice.letter));
                 optionsContainer.appendChild(optionBox);
             });
-            car.innerHTML = `<span>정답 대기중...</span>`;
-            car.style.backgroundColor = '#6c757d';
         } else if (qData.type.startsWith("descriptive")) {
             optionsContainer.style.display = "flex";
             const answerInput = document.createElement("textarea");
             answerInput.id = "answerInput";
             answerInput.placeholder = "여기에 답변을 입력하세요.";
             optionsContainer.appendChild(answerInput);
-            car.innerHTML = `<span>답변 입력 대기중...</span>`;
-            car.style.backgroundColor = '#6c757d';
             feedback.innerText = "답변을 입력하고 다음 버튼을 눌러주세요.";
             feedback.style.color = "#3498db";
             nextBtn.style.display = "block";
         }
-
-        startCarMovement();
-    }
-
-    function startCarMovement() {
-        clearInterval(carMoveInterval);
-        let carLeft = parseFloat(car.style.left) || 5 * window.innerWidth / 100; // Initialize carLeft if not set
-        const gameAreaWidth = window.innerWidth;
-        const carWidth = car.offsetWidth;
-        const padding = 50;
-
-        carMoveInterval = setInterval(() => {
-            if (isCarMovingRight) {
-                carLeft += 3;
-                if (carLeft + carWidth >= gameAreaWidth - padding) {
-                    isCarMovingRight = false;
-                }
-            } else {
-                carLeft -= 3;
-                if (carLeft <= padding) {
-                    isCarMovingRight = true;
-                }
-            }
-            car.style.left = carLeft + "px";
-            car.dataset.isMovingRight = isCarMovingRight;
-        }, 30);
     }
 
     function checkAnswer(selectedOptionBox, selectedLetter) {
         if (optionsDisabled) return;
         optionsDisabled = true;
-        clearInterval(carMoveInterval);
 
         const qData = questions[currentQuestionIndex];
         const correctAnswerLetter = qData.a;
@@ -577,15 +492,12 @@
             });
         }
         scoreDisplay.innerText = "점수: " + score;
-        car.innerHTML = `<span>정답: ${correctAnswerLetter}</span>`;
-        car.style.backgroundColor = '#27ae60';
         nextBtn.style.display = "block";
     }
 
     function checkDescriptiveAnswer(userAnswer, questionType) {
         if (optionsDisabled) return;
         optionsDisabled = true;
-        clearInterval(carMoveInterval);
 
         const qData = questions[currentQuestionIndex];
         const trimmedUserAnswer = userAnswer.trim();
@@ -609,13 +521,9 @@
                 feedback.style.color = "red";
             }
             scoreDisplay.innerText = "점수: " + score;
-            car.innerHTML = `<span>${isCorrect ? '정답!' : '오답!'}</span>`;
-            car.style.backgroundColor = isCorrect ? '#27ae60' : '#dc3545';
         } else {
             feedback.innerText = "답변이 기록되었습니다.";
             feedback.style.color = "#3498db";
-            car.innerHTML = `<span>답변 완료!</span>`;
-            car.style.backgroundColor = '#6c757d';
         }
 
         setTimeout(() => {
@@ -624,7 +532,6 @@
     }
 
     function nextQuestion() {
-        clearInterval(carMoveInterval);
         currentQuestionIndex++;
         loadQuestion();
     }
@@ -639,7 +546,6 @@
         finalResultDiv.style.display = "none";
         questionBox.style.display = "block";
         optionsContainer.style.display = "flex";
-        car.style.display = "flex";
         scoreDisplay.style.display = "block";
         feedback.style.display = "block";
         scoreDisplay.innerText = "점수: 0";
@@ -650,7 +556,6 @@
         document.getElementById("gameArea").style.background = "#eef";
         questionBox.style.display = "none";
         optionsContainer.style.display = "none";
-        car.style.display = "none";
         nextBtn.style.display = "none";
         feedback.style.display = "none";
         scoreDisplay.style.display = "none";
