@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>음주 영향 퀴즈 게임</title>
+    <style>
+        /* 기본 스타일 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif; /* Inter 폰트 사용 */
+            background: #eef; /* 배경색 */
+            overflow: hidden; /* 스크롤바 방지 */
+            height: 100%;
+        }
+
+        /* 게임 영역 스타일 */
+        #gameArea {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #cceeff, #99ccff); /* 배경 그라데이션 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* 상단 정렬 */
+            padding-top: 5vh; /* 상단 여백 추가 */
+            box-sizing: border-box;
+        }
+
+        /* 문제 상자 스타일 */
+        #questionBox {
+            background: white;
+            padding: 3vh 4vw; /* 내부 여백 */
+            border: 2px solid #555;
+            border-radius: 10px;
+            max-width: 90vw;
+            width: auto; /* 내용에 따라 너비 조정 */
+            font-size: 2.8vw; /* 뷰포트 너비에 비례하는 글자 크기 */
+            text-align: center;
+            white-space: pre-wrap; /* 줄바꿈 유지 */
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            line-height: 1.4; /* 줄 간격 */
+            margin-bottom: 3vh; /* 보기가 나타날 공간 확보 */
+            box-sizing: border-box;
+        }
+
+        /* 보기 컨테이너 스타일 */
+        #optionsContainer {
+            display: flex; /* Flexbox 활성화 */
+            flex-direction: column; /* 세로 방향으로 아이템 정렬 */
+            align-items: center; /* 가로축 가운데 정렬 */
+            gap: 2vh; /* 보기 상자들 사이의 세로 간격 */
+            margin-bottom: 5vh; /* 자동차와 다음 버튼 공간 확보 */
+            max-width: 90vw; /* 최대 너비 제한 */
+            box-sizing: border-box;
+        }
+
+        /* 보기 상자 스타일 */
+        .optionBox {
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 8px; /* 둥근 모서리 */
+            padding: 4vh 3vw; /* 높이를 2배로 증가 (기존 2vh에서 4vh로) */
+            font-size: 2.2vw; /* 작은 글씨 */
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease; /* 호버 및 상태 변경 효과 */
+            min-width: 50vw; /* 최소 너비 (가운데 정렬 시 좀 더 넓게) */
+            max-width: 70vw; /* 최대 너비 */
+            box-sizing: border-box;
+            white-space: normal; /* 텍스트 줄바꿈 허용 */
+        }
+
+        .optionBox:hover {
+            background: #e0e0e0;
+            border-color: #999;
+        }
+
+        .optionBox.correct {
+            background-color: #d4edda; /* 정답 배경색 */
+            border-color: #28a745; /* 정답 테두리색 */
+            color: #155724; /* 정답 글자색 */
+        }
+
+        .optionBox.incorrect {
+            background-color: #f8d7da; /* 오답 배경색 */
+            border-color: #dc3545; /* 오답 테두리색 */
+            color: #721c24; /* 오답 글자색 */
+        }
+
+        /* 주관식 입력창 스타일 */
+        #answerInput {
+            width: 70vw; /* 너비 조절 */
+            max-width: 500px;
+            height: 15vh; /* 높이 조절 */
+            padding: 2vw;
+            font-size: 2vw;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+            resize: vertical; /* 수직으로만 크기 조절 가능 */
+            box-sizing: border-box;
+            margin-top: 2vh; /* 문제와의 간격 */
+        }
+
+        /* 자동차 스타일 */
+        #car {
+            position: absolute;
+            width: 18vw; /* 뷰포트 너비에 비례 */
+            max-width: 150px; /* 최대 너비 제한 */
+            height: 10vh; /* 뷰포트 높이에 비례 */
+            max-height: 80px; /* 최대 높이 제한 */
+            background: linear-gradient(to right, #3498db, #2980b9); /* 파란색 그라데이션 */
+            border-radius: 10px; /* 둥근 모서리 */
+            bottom: 8vh; /* 하단에서 8% 떨어진 위치 */
+            left: 5vw; /* 왼쪽에서 5% 떨어진 시작 위치 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3); /* 그림자 */
+            transition: left 0.03s linear; /* 부드러운 움직임 */
+            white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+            padding: 0 1vw; /* 내부 여백 */
+            box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+        }
+
+        /* 자동차 안의 텍스트 스타일 (네모 안에 작은 글씨) */
+        #car span {
+            font-size: 2.2vw; /* 자동차 글자 크기보다 작게 */
+            padding: 0.5vh 1vw; /* 네모 안의 패딩 */
+            border: 1px solid rgba(255, 255, 255, 0.7); /* 흰색 테두리 */
+            border-radius: 5px; /* 둥근 모서리 */
+            background-color: rgba(0, 0, 0, 0.2); /* 반투명 배경 */
+        }
+
+        /* 점수 표시 스타일 */
+        #score {
+            position: absolute;
+            top: 2vh;
+            left: 3vw;
+            font-size: 2.8vw;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* 다음 버튼 스타일 */
+        #nextBtn {
+            position: absolute;
+            bottom: 3vh; /* 하단에서 3% 떨어진 위치 */
+            right: 3vw; /* 오른쪽에서 3% 떨어진 위치 */
+            padding: 1.5vh 3vw; /* 내부 여백 */
+            font-size: 2.8vw;
+            background: #27ae60; /* 녹색 버튼 */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease; /* 호버 효과 */
+        }
+
+        #nextBtn:hover {
+            background: #2ecc71;
+        }
+
+        /* 다시 시작 버튼 스타일 */
+        #restartBtn {
+            margin-top: 3vh;
+            padding: 1.5vh 3vw;
+            font-size: 2.8vw;
+            background: #007bff; /* 파란색 버튼 */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease;
+        }
+
+        #restartBtn:hover {
+            background: #0056b3;
+        }
+
+        /* 피드백 메시지 스타일 */
+        #feedback {
+            position: absolute;
+            bottom: 20vh; /* 자동차 위에 위치 */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3vw;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            min-width: 200px; /* 메시지 공간 확보 */
+            text-align: center;
+            z-index: 10; /* 다른 요소 위에 표시 */
+        }
+
+        /* 최종 결과 화면 스타일 */
+        #finalResult {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* 화면 중앙 정렬 */
+            background: white;
+            padding: 5vh 6vw;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            font-size: 3vw;
+            font-weight: bold;
+            line-height: 1.6;
+            display: none; /* 기본적으로 숨김 */
+            z-index: 20; /* 가장 위에 표시 */
+            overflow-y: auto; /* 내용이 넘칠 경우 스크롤 */
+            max-height: 90vh; /* 최대 높이 */
+        }
+
+        #finalResult p {
+            margin: 1vh 0;
+        }
+
+        #descriptiveAnswers p {
+            text-align: left; /* 주관식 문제/답변은 왼쪽 정렬 */
+            margin-top: 2vh;
+            border-top: 1px dashed #ccc;
+            padding-top: 1vh;
+            font-size: 2.5vw; /* 주관식 답 페이지 글자 크기 */
+            font-weight: normal;
+        }
+
+        #descriptiveAnswers strong {
+            color: #0056b3; /* 문제 색상 */
+        }
+        #descriptiveAnswers span {
+            color: #28a745; /* 정답 색상 */
+        }
+        #descriptiveAnswers .user-answer {
+            color: #6a0dad; /* 사용자 답변 색상 (보라색) */
+        }
+        #descriptiveAnswers .result-feedback {
+            font-weight: bold; /* 최종 결과 페이지의 피드백 굵게 */
+        }
+
+        /* 미디어 쿼리 - 태블릿 (768px 이상) */
+        @media (min-width: 768px) {
+            #questionBox {
+                font-size: 2vw;
+                max-width: 70vw;
+            }
+            .optionBox {
+                font-size: 1.6vw;
+                padding: 3vh 2.5vw; /* 높이를 2배로 증가 (기존 1.5vh에서 3vh로) */
+                min-width: 40vw; /* 태블릿에서 너비 조정 */
+                max-width: 60vw;
+            }
+            #answerInput {
+                width: 60vw;
+                font-size: 1.8vw;
+            }
+            #score, #nextBtn, #restartBtn {
+                font-size: 2vw;
+            }
+            #feedback {
+                font-size: 2.5vw;
+            }
+            #car {
+                font-size: 2.5vw;
+            }
+            #car span {
+                font-size: 1.8vw; /* 태블릿에서 작은 글씨 크기 조정 */
+            }
+            #finalResult {
+                font-size: 2.5vw;
+                padding: 4vh 5vw;
+            }
+            #descriptiveAnswers p {
+                font-size: 2vw;
+            }
+        }
+
+        /* 미디어 쿼리 - 데스크톱 (1024px 이상) */
+        @media (min-width: 1024px) {
+            #questionBox {
+                font-size: 1.5vw;
+                max-width: 60vw;
+            }
+            .optionBox {
+                font-size: 1.2vw;
+                padding: 2vh 2vw; /* 높이를 2배로 증가 (기존 1vh에서 2vh로) */
+                min-width: 30vw; /* 데스크톱에서 너비 조정 */
+                max-width: 50vw;
+            }
+            #answerInput {
+                width: 50vw;
+                font-size: 1.5vw;
+            }
+            #score, #nextBtn, #restartBtn {
+                font-size: 1.5vw;
+            }
+            #feedback {
+                font-size: 2vw;
+            }
+            #car {
+                width: 12vw;
+                max-width: 100px;
+                font-size: 1.8vw;
+            }
+            #car span {
+                font-size: 1.2vw; /* 데스크톱에서 작은 글씨 크기 조정 */
+            }
+            #finalResult {
+                font-size: 2vw;
+                max-width: 50vw;
+            }
+            #descriptiveAnswers p {
+                font-size: 1.5vw;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="gameArea">
+    <div id="score">점수: 0</div>
+    <div id="questionBox">문제 로딩 중...</div>
+    <div id="optionsContainer">
+        <!-- 보기 옵션 또는 주관식 입력창이 여기에 동적으로 생성됩니다 -->
+    </div>
+    <div id="car"></div>
+    <div id="feedback"></div>
+    <button id="nextBtn">다음</button>
+    <div id="finalResult">
+        <p>🎉 퀴즈 완료!</p>
+        <p>총 객관식 문제: <span id="totalQuestions"></span>개</p>
+        <p style="color: green;">✅ 정답: <span id="correctAnswers"></span>개</p>
+        <p style="color: red;">❌ 오답: <span id="incorrectAnswers"></span>개</p>
+        <p>최종 점수: <span id="finalScore"></span>점</p>
+        <div id="descriptiveAnswers">
+            <!-- 주관식 문제와 답이 여기에 표시됩니다 -->
+            <h3>주관식 문제 & 정답 예시</h3>
+        </div>
+        <button id="restartBtn" onclick="restartGame()">다시 시작</button>
+    </div>
+</div>
+
+<script>
+    // 퀴즈 문제 데이터
+    const questions = [
+        {
+            type: "multiple-choice", // 문제 유형: 객관식
+            q: "과도한 음주가 인체에 미치는 영향으로 옳지 않은 것은?",
+            choices: [ // 보기 목록 (텍스트와 실제 값)
+                { letter: "A", text: "간 기능 저하" },
+                { letter: "B", text: "심혈관 질환 발생 위험 증가" },
+                { letter: "C", text: "면역력 향상" },
+                { letter: "D", text: "뇌 기능 저하" }
+            ],
+            a: "C" // 정답의 실제 값
+        },
+        {
+            type: "multiple-choice",
+            q: "다음 중 알코올 중독의 가정 내 부작용으로 가장 일반적인 것은?",
+            choices: [
+                { letter: "A", text: "가정 경제의 향상" },
+                { letter: "B", text: "가족 간 소통 증가" },
+                { letter: "C", text: "가정 폭력 증가" },
+                { letter: "D", text: "가족 구성원 건강 개선" }
+            ],
+            a: "C"
+        },
+        {
+            type: "multiple-choice",
+            q: "술이 사회에 미치는 부정적인 영향으로 옳은 것은?",
+            choices: [
+                { letter: "A", text: "범죄 발생률 감소" },
+                { letter: "B", text: "생산성 증가" },
+                { letter: "C", text: "음주운전 사고 증가" },
+                { letter: "D", text: "사회적 신뢰도 향상" }
+            ],
+            a: "C"
+        },
+        {
+            type: "multiple-choice",
+            q: "다음 중 알코올 의존증의 증상으로 보기 어려운 것은?",
+            choices: [
+                { letter: "A", text: "금단 증상" },
+                { letter: "B", text: "조절 능력 상실" },
+                { letter: "C", text: "반복적인 음주로 인한 문제 발생" },
+                { letter: "D", text: "음주 후 신체 건강 회복" }
+            ],
+            a: "D"
+        },
+        {
+            type: "multiple-choice",
+            q: "음주운전으로 인한 사회적 피해에 해당하지 않는 것은?",
+            choices: [
+                { letter: "A", text: "타인의 생명 위협" },
+                { letter: "B", text: "운전 능력 향상" },
+                { letter: "C", text: "벌금이나 처벌" },
+                { letter: "D", text: "교통사고로 인한 사망"}
+            ],
+            a: "B"
+        },
+        {
+            type: "multiple-choice",
+            q: "청소년의 음주가 사회에 미치는 영향으로 옳은 것은?",
+            choices: [
+                { letter: "A", text: "학업 능력 향상" },
+                { letter: "B", text: "또래 관계의 긍정적 강화" },
+                { letter: "C", text: "범죄 연루 가능성 증가" },
+                { letter: "D", text: "건강한 성장 촉진" }
+            ],
+            a: "C"
+        },
+        {
+            type: "descriptive-scored", // 7번 문제: 점수 반영 및 피드백 제공
+            q: "술이 간에 미치는 대표적인 질병 두 가지를 서술하세요.",
+            a: "간경변, 지방간" // 주관식 정답 예시 (복수 허용)
+        },
+        {
+            type: "descriptive-unscored", // 8번 문제: 점수 미반영, 피드백 없음
+            q: "가정에서 과도한 음주가 가정에 미칠 수 있는 영향 1가지 이상 서술하세요.",
+            a: "가정 폭력, 불화, 경제적 어려움, 아동 방치"
+        },
+        {
+            type: "descriptive-unscored", // 9번 문제: 점수 미반영, 피드백 없음
+            q: "음주운전이 사회적으로 왜 큰 문제가 되는지 이유를 2가지 이상 서술하세요.",
+            a: "교통사고 및 사망자 증가, 사회적 비용 발생, 타인의 생명 위협, 법적 처벌"
+        },
+        {
+            type: "descriptive-unscored", // 10번 문제: 점수 미반영, 피드백 없음
+            q: "건강하고 책임 있는 음주 문화를 형성하기 위해 개인이나 사회가 할 수 있는 노력을 서술하세요.",
+            a: "절주 교육, 캠페인, 대중교통 이용 권장, 음주 자제 분위기 조성"
+        }
+    ];
+
+    let currentQuestionIndex = 0; // 현재 문제 인덱스
+    let score = 0; // 총 점수
+    let mcCorrectCount = 0; // 객관식 정답 개수
+    let mcIncorrectCount = 0; // 객관식 오답 개수
+    let carMoveInterval; // 자동차 움직임 인터벌 ID
+    let isCarMovingRight = true; // 자동차 이동 방향 (오른쪽: true, 왼쪽: false)
+    let optionsDisabled = false; // 보기 클릭 비활성화 여부
+    let userDescriptiveAnswers = []; // 사용자의 주관식 답변을 저장할 배열
+
+    // DOM 요소 가져오기
+    const car = document.getElementById("car");
+    const questionBox = document.getElementById("questionBox");
+    const optionsContainer = document.getElementById("optionsContainer"); // 보기 컨테이너
+    const scoreDisplay = document.getElementById("score");
+    const feedback = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const finalResultDiv = document.getElementById("finalResult");
+    const descriptiveAnswersDiv = document.getElementById("descriptiveAnswers"); // 주관식 답을 표시할 div
+    const totalQuestionsSpan = document.getElementById("totalQuestions");
+    const correctAnswersSpan = document.getElementById("correctAnswers");
+    const incorrectAnswersSpan = document.getElementById("incorrectAnswers");
+    const finalScoreSpan = document.getElementById("finalScore");
+
+    // "다음" 버튼 클릭 이벤트 리스너
+    nextBtn.addEventListener("click", () => {
+        const currentQType = questions[currentQuestionIndex].type;
+        if (currentQType.startsWith("descriptive")) { // 모든 주관식 문제 타입
+            const answerInput = document.getElementById('answerInput');
+            if (answerInput) { // 입력창이 있을 때만
+                checkDescriptiveAnswer(answerInput.value, currentQType);
+            }
+        } else {
+            // 객관식 문제의 경우, checkAnswer에서 이미 처리됨
+            nextQuestion(); // 직접 호출하여 다음 문제로 진행
+        }
+    });
+
+    // 문제 로드 함수
+    function loadQuestion() {
+        if (currentQuestionIndex >= questions.length) {
+            showResult(); // 모든 문제 풀이 완료 시 결과 표시
+            return;
+        }
+
+        const qData = questions[currentQuestionIndex];
+        questionBox.innerText = qData.q; // 문제 텍스트 업데이트
+
+        // 이전 문제의 보기 요소 또는 입력창 제거
+        optionsContainer.innerHTML = "";
+        
+        // 자동차 상태 초기화
+        car.innerHTML = ""; // 자동차 내용 비우기
+        car.style.backgroundColor = '#3498db'; // 자동차 기본색으로 (파란색)
+        feedback.innerText = ""; // 피드백 메시지 비우기
+        feedback.style.color = "";
+        nextBtn.style.display = "none"; // 다음 버튼 숨기기
+        optionsDisabled = false; // 보기 클릭 다시 활성화
+
+        // 문제 유형에 따라 처리
+        if (qData.type === "multiple-choice") {
+            optionsContainer.style.display = "flex"; // 객관식은 보기 컨테이너 표시
+            qData.choices.forEach((choice) => {
+                const optionBox = document.createElement("div");
+                optionBox.classList.add("optionBox");
+                optionBox.innerText = `${choice.letter}. ${choice.text}`; // A, B, C, D와 텍스트 함께 표시
+                optionBox.dataset.letter = choice.letter; // 정답 확인을 위한 데이터 속성
+                
+                optionBox.addEventListener("click", () => checkAnswer(optionBox, choice.letter));
+                optionsContainer.appendChild(optionBox); // optionsContainer에 추가
+            });
+            car.innerHTML = `<span>정답 대기중...</span>`;
+            car.style.backgroundColor = '#6c757d'; // 자동차는 정답 선택 전까지 회색
+        } else if (qData.type.startsWith("descriptive")) { // 모든 주관식 타입
+            optionsContainer.style.display = "flex"; // 주관식은 입력창을 표시하기 위해 flex 유지
+
+            const answerInput = document.createElement("textarea");
+            answerInput.id = "answerInput";
+            answerInput.placeholder = "여기에 답변을 입력하세요.";
+            optionsContainer.appendChild(answerInput); // 입력창 추가
+
+            // 자동차에 정답 표시하지 않음
+            car.innerHTML = `<span>답변 입력 대기중...</span>`; // 자동차에 일반 메시지 표시
+            car.style.backgroundColor = '#6c757d'; // 회색 유지
+            feedback.innerText = "답변을 입력하고 다음 버튼을 눌러주세요.";
+            feedback.style.color = "#3498db"; // 파란색 피드백
+            
+            // 주관식 문제의 다음 버튼은 바로 활성화
+            nextBtn.style.display = "block";
+        }
+
+        // 자동차 움직임 시작
+        startCarMovement();
+    }
+
+    // 자동차 움직임 시작 함수
+    function startCarMovement() {
+        clearInterval(carMoveInterval); // 기존 인터벌 중지
+
+        let carLeft = parseFloat(car.style.left); // 현재 자동차 왼쪽 위치
+        const gameAreaWidth = window.innerWidth; // 게임 영역 너비
+        const carWidth = car.offsetWidth; // 자동차 너비
+        const padding = 50; // 화면 경계로부터의 여백
+
+        carMoveInterval = setInterval(() => {
+            if (isCarMovingRight) {
+                carLeft += 3; // 오른쪽으로 이동 속도
+                if (carLeft + carWidth >= gameAreaWidth - padding) {
+                    isCarMovingRight = false;
+                }
+            } else {
+                carLeft -= 3; // 왼쪽으로 이동 속도
+                if (carLeft <= padding) {
+                    isCarMovingRight = true;
+                }
+            }
+            car.style.left = carLeft + "px"; // 자동차 위치 업데이트
+            car.dataset.isMovingRight = isCarMovingRight; // 방향 상태 업데이트
+        }, 30);
+    }
+
+    // 답 확인 함수 (객관식 문제용)
+    function checkAnswer(selectedOptionBox, selectedLetter) {
+        if (optionsDisabled) return; // 이미 선택했으면 비활성화
+        optionsDisabled = true; // 보기 클릭 비활성화
+        
+        clearInterval(carMoveInterval); // 자동차 움직임 중지 (선택 시 멈춤)
+
+        const qData = questions[currentQuestionIndex];
+        const correctAnswerLetter = qData.a;
+
+        // 모든 보기 클릭 비활성화 (선택 후에는 다시 클릭할 수 없도록)
+        document.querySelectorAll('.optionBox').forEach(box => {
+            box.style.pointerEvents = 'none';
+        });
+
+        let isCorrect = false; // 현재 답변이 정답인지 여부
+        if (selectedLetter === correctAnswerLetter) {
+            feedback.innerText = "✅ 정답입니다!";
+            feedback.style.color = "green";
+            score += 10; // 객관식만 점수 반영
+            mcCorrectCount++; // 객관식 정답만 카운트
+            selectedOptionBox.classList.add("correct"); // 정답 스타일 적용
+            isCorrect = true;
+        } else {
+            feedback.innerText = "❌ 오답입니다!";
+            feedback.style.color = "red";
+            mcIncorrectCount++; // 객관식 오답만 카운트
+            selectedOptionBox.classList.add("incorrect"); // 오답 스타일 적용
+
+            // 정답 보기도 찾아서 표시
+            const allOptions = document.querySelectorAll('.optionBox');
+            allOptions.forEach(option => {
+                if (option.dataset.letter === correctAnswerLetter) {
+                    option.classList.add("correct");
+                }
+            });
+        }
+        scoreDisplay.innerText = "점수: " + score;
+
+        // 자동차에 정답 표시 및 다음 버튼 활성화
+        car.innerHTML = `<span>정답: ${correctAnswerLetter}</span>`;
+        car.style.backgroundColor = '#27ae60'; // 정답 표시 시 초록색 배경
+        
+        nextBtn.style.display = "block"; // 다음 버튼 바로 표시
+    }
+
+    // 주관식 답 확인 함수
+    function checkDescriptiveAnswer(userAnswer, questionType) {
+        if (optionsDisabled) return; // 이미 확인했으면 비활성화
+        optionsDisabled = true; // 추가 입력 및 확인 방지
+
+        clearInterval(carMoveInterval); // 자동차 움직임 중지
+
+        const qData = questions[currentQuestionIndex];
+        const trimmedUserAnswer = userAnswer.trim(); // 사용자 답변 공백 제거
+
+        // 주관식은 입력만 있으면 정답으로 인정
+        const isCorrect = trimmedUserAnswer.length > 0;
+
+        // 사용자의 답변과 정답을 저장 (최종 결과 페이지에서 사용)
+        userDescriptiveAnswers[currentQuestionIndex] = {
+            question: qData.q,
+            userAnswer: userAnswer, // 원본 답변 저장
+            correctAnswer: qData.a,
+            isCorrect: isCorrect, // 입력 여부에 따라 정답 여부 저장
+            type: questionType // 문제 유형도 저장
+        };
+
+        if (questionType === "descriptive-scored") {
+            // 점수 반영 주관식 문제 (7번)의 경우
+            if (isCorrect) {
+                feedback.innerText = "✅ 정답입니다!";
+                feedback.style.color = "green";
+                score += 10; // 점수 반영
+            } else {
+                feedback.innerText = "❌ 오답입니다!";
+                feedback.style.color = "red";
+            }
+            scoreDisplay.innerText = "점수: " + score; // 점수 업데이트 UI
+            car.innerHTML = `<span>${isCorrect ? '정답!' : '오답!'}</span>`;
+            car.style.backgroundColor = isCorrect ? '#27ae60' : '#dc3545';
+        } else { // descriptive-unscored (8, 9, 10번)
+            // 점수 미반영 주관식 문제의 경우
+            feedback.innerText = "답변이 기록되었습니다.";
+            feedback.style.color = "#3498db"; // 중립적인 파란색
+            car.innerHTML = `<span>답변 완료!</span>`;
+            car.style.backgroundColor = '#6c757d'; // 회색
+        }
+        
+        // 피드백을 보여준 후 다음 문제로 자동 진행
+        setTimeout(() => {
+            nextQuestion();
+        }, 1500); // 1.5초 후 다음 문제로
+    }
+
+    // 다음 문제로 이동 함수
+    function nextQuestion() {
+        clearInterval(carMoveInterval); // 자동차 움직임 중지
+        currentQuestionIndex++;
+        loadQuestion();
+    }
+
+    // 다시 시작 함수
+    function restartGame() {
+        currentQuestionIndex = 0; // 문제 인덱스 초기화
+        score = 0; // 점수 초기화
+        mcCorrectCount = 0; // 객관식 정답 수 초기화
+        mcIncorrectCount = 0; // 객관식 오답 수 초기화
+        userDescriptiveAnswers = []; // 주관식 답변 초기화
+        optionsDisabled = false; // 보기 클릭 활성화
+        finalResultDiv.style.display = "none"; // 결과 화면 숨김
+        questionBox.style.display = "block"; // 문제 상자 표시
+        optionsContainer.style.display = "flex"; // 보기 컨테이너 표시
+        car.style.display = "flex"; // 자동차 표시
+        scoreDisplay.style.display = "block"; // 점수 표시
+        feedback.style.display = "block"; // 피드백 표시
+        scoreDisplay.innerText = "점수: 0"; // 점수 초기화 표시
+        loadQuestion(); // 첫 번째 문제 로드
+    }
+
+    // 최종 결과 표시 함수
+    function showResult() {
+        document.getElementById("gameArea").style.background = "#eef"; // 배경색 변경
+        questionBox.style.display = "none"; // 문제 상자 숨김
+        optionsContainer.style.display = "none"; // 보기 컨테이너 숨김
+        car.style.display = "none"; // 자동차 숨김
+        nextBtn.style.display = "none"; // 다음 버튼 숨김
+        feedback.style.display = "none"; // 피드백 숨김
+        scoreDisplay.style.display = "none"; // 점수 숨김
+
+        finalResultDiv.style.display = "block"; // 최종 결과 화면 표시
+        
+        // 객관식 결과만 표시
+        totalQuestionsSpan.innerText = questions.filter(q => q.type === "multiple-choice").length;
+        correctAnswersSpan.innerText = mcCorrectCount;
+        incorrectAnswersSpan.innerText = mcIncorrectCount;
+        finalScoreSpan.innerText = score; // 전체 점수 표시
+
+        // 주관식 문제와 답 표시
+        descriptiveAnswersDiv.innerHTML = '<h3>주관식 문제 & 정답 예시</h3>'; // 제목 초기화 및 변경
+        let hasDescriptive = false;
+        questions.forEach((qData, index) => {
+            if (qData.type.startsWith("descriptive")) { // 모든 주관식 문제 처리
+                hasDescriptive = true;
+                const p = document.createElement("p");
+                const storedAnswer = userDescriptiveAnswers[index];
+                const userAnswerText = storedAnswer ? storedAnswer.userAnswer : "답변 없음";
+                const correctAnswerText = qData.a;
+                // descriptive-unscored 타입의 경우 isCorrect는 항상 true로 처리 (입력만 하면 정답)
+                const isCorrectForDisplay = (qData.type === "descriptive-unscored") ? (userAnswerText !== "답변 없음") : (storedAnswer ? storedAnswer.isCorrect : false);
+
+                let feedbackHtml = '';
+                if (qData.type === "descriptive-scored") {
+                    // 7번 문제 (descriptive-scored)만 정답/오답 여부 표시
+                    feedbackHtml = `<br><span class="result-feedback" style="color: ${isCorrectForDisplay ? 'green' : 'red'};">${isCorrectForDisplay ? '✅ 정답' : '❌ 오답'}</span>`;
+                }
+                // 8, 9, 10번 문제 (descriptive-unscored)는 피드백 없음
+
+                p.innerHTML = `<strong>문제 ${index + 1}:</strong> ${qData.q.split('\n')[0].trim()}<br>` +
+                              `<span class="user-answer"><strong>내 답변:</strong> ${userAnswerText}</span><br>` +
+                              `<span><strong>정답 예시:</strong> ${correctAnswerText}</span>` +
+                              feedbackHtml;
+                descriptiveAnswersDiv.appendChild(p);
+            }
+        });
+
+        if (!hasDescriptive) {
+            descriptiveAnswersDiv.innerHTML += "<p>주관식 문제가 없습니다.</p>";
+        }
+    }
+
+    // 페이지 로드 시 초기 문제 로드
+    window.onload = loadQuestion;
+</script>
+
+</body>
+</html>
