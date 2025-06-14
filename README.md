@@ -11,38 +11,31 @@
             padding: 0;
             font-family: 'Inter', sans-serif;
             background: #eef;
-            overflow-x: hidden; /* Prevent horizontal overflow */
+            overflow: hidden;
             height: 100%;
         }
 
-        /* 게임 영역 스타일 */
         #gameArea {
             position: relative;
-            width: 100%; /* Use full width */
-            max-width: 100vw; /* Prevent exceeding viewport */
+            width: 100vw;
             height: 100vh;
             background: linear-gradient(to bottom, #cceeff, #99ccff);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding-top: 7vh; /* 상단 패딩을 7vh로 늘림 (약 2cm 아래로) */
-            padding-left: 2vw;
-            padding-right: 2vw;
-            padding-bottom: 5vh; /* 기존 하단 패딩 유지 */
+            padding-top: 5vh;
             box-sizing: border-box;
-            overflow-x: hidden;
         }
 
-        /* 문제 상자 스타일 */
         #questionBox {
             background: white;
-            padding: 2vh 3vw;
+            padding: 3vh 4vw;
             border: 2px solid #555;
             border-radius: 10px;
             max-width: 90vw;
             width: auto;
-            font-size: 1.2rem; /* Use rem for better scaling */
+            font-size: 2.8vw;
             text-align: center;
             white-space: pre-wrap;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
@@ -51,7 +44,6 @@
             box-sizing: border-box;
         }
 
-        /* 보기 컨테이너 스타일 */
         #optionsContainer {
             display: flex;
             flex-direction: column;
@@ -62,20 +54,19 @@
             box-sizing: border-box;
         }
 
-        /* 보기 상자 스타일 */
         .optionBox {
             background: #f0f0f0;
             border: 1px solid #ccc;
             border-radius: 8px;
-            padding: 3vh 2vw;
-            font-size: 1rem;
+            padding: 4vh 3vw;
+            font-size: 2.2vw;
             font-weight: bold;
             text-align: center;
             cursor: pointer;
             box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
             transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-            min-width: 80vw; /* Wider for mobile */
-            max-width: 90vw;
+            min-width: 50vw;
+            max-width: 70vw;
             box-sizing: border-box;
             white-space: normal;
         }
@@ -97,13 +88,12 @@
             color: #721c24;
         }
 
-        /* 주관식 입력창 스타일 */
         #answerInput {
             width: 70vw;
             max-width: 500px;
             height: 15vh;
             padding: 2vw;
-            font-size: 1rem;
+            font-size: 2vw;
             border: 2px solid #ccc;
             border-radius: 8px;
             box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
@@ -112,20 +102,18 @@
             margin-top: 2vh;
         }
 
-        /* 점수 표시 스타일 */
         #score {
             position: absolute;
             top: 2vh;
             left: 3vw;
-            font-size: 1.2rem;
+            font-size: 2.8vw;
             font-weight: bold;
             color: #333;
         }
 
-        /* 다음 버튼 스타일 */
         #nextBtn {
             padding: 1.5vh 3vw;
-            font-size: 1rem;
+            font-size: 2.8vw;
             background: #27ae60;
             color: white;
             border: none;
@@ -133,20 +121,16 @@
             cursor: pointer;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
             transition: background 0.3s ease;
-            z-index: 30;
-            min-width: 100px;
-            margin-top: 2vh; /* Add margin-top to position below feedback */
         }
 
         #nextBtn:hover {
             background: #2ecc71;
         }
 
-        /* 다시 시작 버튼 스타일 */
         #restartBtn {
             margin-top: 3vh;
             padding: 1.5vh 3vw;
-            font-size: 1rem;
+            font-size: 2.8vw;
             background: #007bff;
             color: white;
             border: none;
@@ -160,18 +144,30 @@
             background: #0056b3;
         }
 
-        /* 피드백 메시지 스타일 */
         #feedback {
-            font-size: 1rem;
+            position: absolute;
+            bottom: 15vh;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3vw;
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
             min-width: 200px;
             text-align: center;
             z-index: 10;
-            margin-top: 2vh; /* Add margin-top for spacing */
         }
 
-        /* 최종 결과 화면 스타일 */
+        #feedbackContainer {
+            position: absolute;
+            bottom: 3vh;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2vh;
+        }
+
         #finalResult {
             position: absolute;
             top: 50%;
@@ -182,7 +178,7 @@
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
             text-align: center;
-            font-size: 1rem;
+            font-size: 3vw;
             font-weight: bold;
             line-height: 1.6;
             display: none;
@@ -200,7 +196,7 @@
             margin-top: 2vh;
             border-top: 1px dashed #ccc;
             padding-top: 1vh;
-            font-size: 0.9rem;
+            font-size: 2.5vw;
             font-weight: normal;
         }
 
@@ -217,65 +213,63 @@
             font-weight: bold;
         }
 
-        /* 미디어 쿼리 - 태블릿 (768px 이상) */
         @media (min-width: 768px) {
             #questionBox {
-                font-size: 1.5rem;
+                font-size: 2vw;
                 max-width: 70vw;
             }
             .optionBox {
-                font-size: 1.2rem;
-                padding: 2vh 2vw;
-                min-width: 50vw;
-                max-width: 70vw;
+                font-size: 1.6vw;
+                padding: 3vh 2.5vw;
+                min-width: 40vw;
+                max-width: 60vw;
             }
             #answerInput {
                 width: 60vw;
-                font-size: 1.2rem;
+                font-size: 1.8vw;
             }
             #score, #nextBtn, #restartBtn {
-                font-size: 1.2rem;
+                font-size: 2vw;
             }
             #feedback {
-                font-size: 1.2rem;
+                font-size: 2.5vw;
             }
             #finalResult {
-                font-size: 1.2rem;
+                font-size: 2.5vw;
                 padding: 4vh 5vw;
             }
             #descriptiveAnswers p {
-                font-size: 1rem;
+                font-size: 2vw;
             }
         }
 
-        /* 미디어 쿼리 - 데스크톱 (1024px 이상) */
         @media (min-width: 1024px) {
             #questionBox {
-                font-size: 1.8rem;
+                font-size: 1.5vw;
                 max-width: 60vw;
             }
             .optionBox {
-                font-size: 1.4rem;
-                padding: 1.5vh 1.5vw;
-                min-width: 40vw;
+                font-size: 1.2vw;
+                padding: 2vh 2vw;
+                min-width: 30vw;
                 max-width: 50vw;
             }
             #answerInput {
                 width: 50vw;
-                font-size: 1.4rem;
+                font-size: 1.5vw;
             }
             #score, #nextBtn, #restartBtn {
-                font-size: 1.4rem;
+                font-size: 1.5vw;
             }
             #feedback {
-                font-size: 1.4rem;
+                font-size: 2vw;
             }
             #finalResult {
-                font-size: 1.4rem;
+                font-size: 2vw;
                 max-width: 50vw;
             }
             #descriptiveAnswers p {
-                font-size: 1.2rem;
+                font-size: 1.5vw;
             }
         }
     </style>
@@ -285,11 +279,11 @@
 <div id="gameArea">
     <div id="score">점수: 0</div>
     <div id="questionBox">문제 로딩 중...</div>
-    <div id="optionsContainer">
-        <!-- 보기 옵션 또는 주관식 입력창이 여기에 동적으로 생성됩니다 -->
+    <div id="optionsContainer"></div>
+    <div id="feedbackContainer">
+        <div id="feedback"></div>
+        <button id="nextBtn">다음</button>
     </div>
-    <div id="feedback"></div>
-    <button id="nextBtn">다음</button>
     <div id="finalResult">
         <p>🎉 퀴즈 완료!</p>
         <p>총 객관식 문제: <span id="totalQuestions"></span>개</p>
@@ -304,7 +298,6 @@
 </div>
 
 <script>
-    // 퀴즈 문제 데이터
     const questions = [
         {
             type: "multiple-choice",
@@ -359,7 +352,7 @@
                 { letter: "C", text: "벌금이나 처벌" },
                 { letter: "D", text: "교통사고로 인한 사망"}
             ],
-            a: "B"
+            a: "D"
         },
         {
             type: "multiple-choice",
@@ -433,6 +426,7 @@
 
         const qData = questions[currentQuestionIndex];
         questionBox.innerText = qData.q;
+
         optionsContainer.innerHTML = "";
         feedback.innerText = "";
         feedback.style.color = "";
@@ -474,18 +468,19 @@
 
         let isCorrect = false;
         if (selectedLetter === correctAnswerLetter) {
-            feedback.innerText = "✅ 정답입니다!";
+            feedback.innerText = "정답입니다!";
             feedback.style.color = "green";
             score += 10;
             mcCorrectCount++;
             selectedOptionBox.classList.add("correct");
             isCorrect = true;
         } else {
-            feedback.innerText = "❌ 오답입니다!";
+            feedback.innerText = "오답입니다!";
             feedback.style.color = "red";
             mcIncorrectCount++;
             selectedOptionBox.classList.add("incorrect");
-            document.querySelectorAll('.optionBox').forEach(option => {
+            const allOptions = document.querySelectorAll('.optionBox');
+            allOptions.forEach(option => {
                 if (option.dataset.letter === correctAnswerLetter) {
                     option.classList.add("correct");
                 }
@@ -513,11 +508,11 @@
 
         if (questionType === "descriptive-scored") {
             if (isCorrect) {
-                feedback.innerText = "✅ 정답입니다!";
+                feedback.innerText = "정답입니다!";
                 feedback.style.color = "green";
                 score += 10;
             } else {
-                feedback.innerText = "❌ 오답입니다!";
+                feedback.innerText = "오답입니다!";
                 feedback.style.color = "red";
             }
             scoreDisplay.innerText = "점수: " + score;
@@ -583,9 +578,9 @@
                 }
 
                 p.innerHTML = `<strong>문제 ${index + 1}:</strong> ${qData.q.split('\n')[0].trim()}<br>` +
-                                `<span class="user-answer"><strong>내 답변:</strong> ${userAnswerText}</span><br>` +
-                                `<span><strong>정답 예시:</strong> ${correctAnswerText}</span>` +
-                                feedbackHtml;
+                              `<span class="user-answer"><strong>내 답변:</strong> ${userAnswerText}</span><br>` +
+                              `<span><strong>정답 예시:</strong> ${correctAnswerText}</span>` +
+                              feedbackHtml;
                 descriptiveAnswersDiv.appendChild(p);
             }
         });
